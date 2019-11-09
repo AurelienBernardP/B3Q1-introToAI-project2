@@ -18,7 +18,7 @@ def key(state):
     -------
     - A hashable key object that uniquely identifies a Pacman game state.
     """
-    return (state.getPacmanPosition(), state.getFood(), state.getGhostPosition(1))
+    return (state.getPacmanPosition(), state.getFood(), state.getGhostPosition(1),state.getGhostDirection(1))
 
 class PacmanAgent(Agent):
     """
@@ -32,9 +32,9 @@ class PacmanAgent(Agent):
         - `args`: Namespace of arguments from command-line prompt.
         """
         self.moves = {}
-
+        
     def get_action(self, state):
-        time.sleep(5)
+        time.sleep(1)
         """
         Given a pacman game state, returns a legal move.
 
@@ -48,7 +48,7 @@ class PacmanAgent(Agent):
         - A legal move as defined in `game.Directions`.
         """
 
-        if not self.moves:
+        if key(state) not in self.moves:
             self.moves = self.minimax(state)
 
         try:
@@ -59,7 +59,7 @@ class PacmanAgent(Agent):
         except IndexError:
             return Directions.STOP
 
-    def minimaxAUX(self, state, agent, closed, ):
+    def minimaxAUX(self, state, agent, closed):
         """
         Given a pacman game state,
         returns a list of legal moves to solve the search layout.
