@@ -26,4 +26,5 @@ class PacmanAgent(Agent):
         -------
         - A legal move as defined in `game.Directions`.
         """
+
         return Directions.STOP
