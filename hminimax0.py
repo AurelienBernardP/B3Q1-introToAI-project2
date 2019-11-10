@@ -35,7 +35,7 @@ class PacmanAgent(Agent):
             nbRows += 1
         nbColumns /= nbRows
 
-        if(depth > (nbColumns + nbRows)/5):
+        if(depth > (nbColumns + nbRows)/6):
             return True
         else:
             return False
@@ -57,7 +57,7 @@ class PacmanAgent(Agent):
                     sumManhattanDist += manhattanDistance(pacmanPosition, (i, j))
         ghostDistance = manhattanDistance(pacmanPosition, ghostPosition)
 
-        return score - sumManhattanDist
+        return score -  sumManhattanDist
 
 
     def get_action(self, state):
@@ -75,9 +75,7 @@ class PacmanAgent(Agent):
         """
         try:
             self.hminimax(state, 0, 0)
-            time.sleep(0.8)
             m = self.move
-            print(m)
             return m
 
         except IndexError:
@@ -99,7 +97,6 @@ class PacmanAgent(Agent):
                     max = value
                     if(depth == 0):
                         self.move = succ_move
-            print("Max: ", max)
             return max
 
         else :

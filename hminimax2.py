@@ -63,7 +63,7 @@ class PacmanAgent(Agent):
                     if (manhattanDistance((i,j), pacmanPosition )) < minDistFood:
                         minDistFood =  (manhattanDistance((i,j), pacmanPosition ))
 
-        return score + 0 * ghostDistance - 1.5 * manDistFood - 7 * nbFood
+        return 3*score + 2*ghostDistance - 5 * minDistFood - 40 * nbFood
 
 
     def get_action(self, state):
@@ -81,13 +81,11 @@ class PacmanAgent(Agent):
         """
 
         self.initNbFood = self.getNbFood(state) + 1
-        self.depthExpansion = 4
+        self.depthExpansion = 2
 
         try:
             self.hminimax(state, 0, 0, (self.initNbFood - self.getNbFood(state))*self.depthExpansion)
-            m = self.move
-            print(m)
-            return m
+            return self.move
 
         except IndexError:
             return Directions.STOP
@@ -108,7 +106,6 @@ class PacmanAgent(Agent):
                     max = value
                     if(depth == 0):
                         self.move = succ_move
-            print("Max: ", max)
             return max
 
         else :

@@ -35,7 +35,7 @@ class PacmanAgent(Agent):
             nbRows += 1
         nbColumns /= nbRows
 
-        if(depth > (nbColumns + nbRows)/3.5):
+        if(depth > (nbColumns + nbRows)/6):
             return True
         else:
             return False
