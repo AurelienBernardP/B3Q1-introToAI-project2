@@ -1,6 +1,9 @@
 
 
 def evals(self, state):
+    if key(state) in self.closed:
+        return -math.inf
+    
     score = state.getScore()
     foodMatrix = state.getFood()
 
@@ -13,10 +16,12 @@ def evals(self, state):
     """Going through the matrix to count the remaining food in the game"""
     for i in range(foodMatrix.width):
         for j in range(foodMatrix.height):
-            if (foodMatrix[i][j] is True) and (manhattanDistance((i,j), pacmanPosition )) < minDistFood:
-                minDistFood =  (manhattanDistance((i,j), pacmanPosition ))
+            if (foodMatrix[i][j] is True): 
+                nbFood +=1
+                if (manhattanDistance((i,j), pacmanPosition )) < minDistFood:
+                    minDistFood =  (manhattanDistance((i,j), pacmanPosition ))
 
-    return score - 2 * (1/ghostDistance) - minDistFood * 5
+    return score - 3 * (1/ghostDistance) - minDistFood*5 - nbFood * 3
 
 
 
