@@ -1,26 +1,74 @@
-    import util
+from pacman_module.util import *
+import math
     def minimaxAUX(self, state, agent, closed):
-        lifo = Queue()
-        fifo = []
-        lifo.push(state, None, 0)#(state, move to get to that state, player turn(0 pacman 1 ghost))
-        while(not lifo.isEmpty()):
-            (currentState, previousMove, currentPlayer) = lifo.pop()
+        queue = Queue()
+        stack = Stack()
+        queue.push(state, None, 0)#(state, move to get to that state, node depth)
+        ghostScores = {}
+        pacmanScores = {}
+        pacmanMoves = {}
+        while(not queue.isEmpty()):
+            (currentState, previousMove, nodeDepth) = queue.pop()
             currentKey = key(currentState)
             if(currentKey not in closed):
                 closed.add(currentKey)
-                if state.isWin() or state.isLose()):
-                    self.pacmanMoves[currentkey] = (previousMove, state.getScore())
-                    continue
-                if CurrentPlayer = 0 :
+                #pacman turn
+                if nodeDepth % 2 = 0 :
+                    if currentState.isWin() or currentState.isLose():
+                        pacmanScores[currentKey] = (state.getScore())
+                        continue
                     nextStates = currentState.generatePacmanSuccessors()
-                    fifo.push(currentState, 0)
+                    stack.push(currentState, nodeDepth + 1 )
                     for s,a in nextStates:
-                        lifo.push(s, a, 1)
-                    
+                        queue.push(s, a, 1)
+                #ghost's turn
                 else :
+                    if state.isWin() or state.isLose()):
+                        ghostScores[currentKey] = (state.getScore())
+                        continue
                     nextStates = currentState.generateGhostSuccessors(1)
+                    stack.push(currentState, nodeDepth + 1 )
                     for s,a in nextStates:
-                        lifo.push(s, a, 0)
-    def init(self, state, agent, closed, fifo, lifo):
+                        queue.push(s, a, 0)
+            else:
+                if not (currentState.isWin() or currentState.isLose()):
+                    if nodeDepth % 2 = 0 :
+                        pacmanScores[currentKey] = math.inf
+                    else:
+                        ghostScores[currentKey] = -math.inf
+        
+        while(not stack.isEmpty()):
+            currentState, currentDepth = stack.pop()
+            if currentDepth % 2 = 0
+                max = -math.inf
+                maxMove = Directions.STOP
+                for s, a in currentState.generatePacmanSuccessors()
+                    succKey = key(s)
+                    if(s.isWin() or s.isLose()):
+                        value = s.getScore()
+                        valueMove = a
+                    else:
+                        value = ghostScores[succKey]
+                        valueMove = a
+                    if max < value
+                        maxMove = a
+                        max = value
+                pacmanMoves[key(currentState)] = a
+                pacmanScores[key(currentState)] = max
+            else:
+                min = math.inf
+                for s, a in currentState.generateGhostSuccessors(1)
+                    succKey = key(s)
+                    if(s.isWin() or s.isLose()):
+                        value = s.getScore()
+                    else:
+                        value = pacmanScores[succKey]
+                    if min < value
+                        min = value
+                ghostScores[key(currentState)] = min
+
+        return pacmanMoves
+        
+    def init(self, state, agent, closed, queue, stack):
 
     def getValues(self, ):
