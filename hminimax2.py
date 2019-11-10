@@ -1,7 +1,12 @@
 # Complete this class for all parts of the project
-
+import time
+import math
+from pacman_module.util import *
 from pacman_module.game import Agent
 from pacman_module.pacman import Directions
+
+def key(state):
+    return (state.getPacmanPosition(), state.getFood(), state.getGhostPosition(1),state.getGhostDirection(1))
 
 
 class PacmanAgent(Agent):
@@ -11,48 +16,60 @@ class PacmanAgent(Agent):
         ----------
         - `args`: Namespace of arguments from command-line prompt.
         """
-        self.args = args
+        self.move = None
 
-
-    def cut_off(self, state):
+    def getNbFood(self,state):
         foodMatrix = state.getFood()
-        pacmanPosition = state.getPacmanPosition()
         nbFood = 0
-        nbCells = 0
-        sumManhattanDist = 0
 
         """Going through the matrix to count the remaining food in the game"""
         for i in range(foodMatrix.width):
             for j in range(foodMatrix.height):
                 if foodMatrix[i][j] is True:
-                    sumManhattanDist += manhattanDistance(pacmanPosition, (i, j))
                     nbFood += 1
-            nbCells += 1
-        if(nbFood != 0):
-            meanMDFood = sumManhattanDist / nbFood
-        else:
-            meanMDFood = 0
+        
+        return nbFood
 
-        if(meanMDFood >= (math.sqrt(nbCells))):
+    def cut_off(self, state, depth):
+        # Terminal State
+        if (state.isWin() or state.isLose()):
+            return True
+
+        # Expansion if food eaten
+        nbFoodCurrent = self.getNbFood(state)
+        if(self.nbFoodPrev > nbFoodCurrent):
+            self.depthMax = depth + self.depthExpansion
+            self.nbFoodPrev = nbFoodCurrent
+
+        if(depth > self.depthMax):
             return True
         else:
             return False
 
 
     def evals(self, state):
+        # Terminal State
+        if (state.isWin() or state.isLose()):
+            return state.getScore()
         score = state.getScore()
-        
-        foodMatrix = state.getFood()
+        gameGrid = state.getFood()
+
         pacmanPosition = state.getPacmanPosition()
-        sumManhattanDist = 0
+        ghostPosition = state.getGhostPosition(1)
+        ghostDistance = manhattanDistance(pacmanPosition, ghostPosition)
 
+
+        minDistFood = math.inf
+        nbFood = 0
         """Going through the matrix to count the remaining food in the game"""
-        for i in range(foodMatrix.width):
-            for j in range(foodMatrix.height):
-                if foodMatrix[i][j] is True:
-                    sumManhattanDist += manhattanDistance(pacmanPosition, (i, j))
+        for i in range(gameGrid.width):
+            for j in range(gameGrid.height):
+                if (gameGrid[i][j] is True): 
+                    nbFood +=1
+                    if (manhattanDistance((i,j), pacmanPosition )) < minDistFood:
+                        minDistFood =  (manhattanDistance((i,j), pacmanPosition ))
 
-        return score - 2*sumManhattanDist
+        return score + 2 * ghostDistance - 2 * minDistFood - 4 * nbFood
 
 
     def get_action(self, state):
@@ -69,4 +86,42 @@ class PacmanAgent(Agent):
         - A legal move as defined in `game.Directions`.
         """
 
-        return Directions.STOP
+        self.nbFoodPrev = self.getNbFood(state)
+        self.depthExpansion = 3
+        self.depthMax = self.depthExpansion
+
+        try:
+            self.hminimax(state, 0, 0)
+            m = self.move
+            print(m)
+            return m
+
+        except IndexError:
+            return Directions.STOP
+
+    def hminimax(self, state, agent, depth):
+
+        #Cas de base
+        if self.cut_off(state, depth) :
+            return self.evals(state)
+
+        max = -math.inf
+        min = math.inf
+        # pacman
+        if(agent == 0) :
+            for succ_state, succ_move in state.generatePacmanSuccessors():
+                value = self.hminimax(succ_state, 1, depth + 1)
+                if value > max :
+                    max = value
+                    if(depth == 0):
+                        self.move = succ_move
+            print("Max: ", max)
+            return max
+
+        else :
+            for succ_state, succ_move in state.generateGhostSuccessors(1):
+                value = self.hminimax(succ_state, 0, depth+1)
+                if value < min :
+                    min = value
+            return min
+    
