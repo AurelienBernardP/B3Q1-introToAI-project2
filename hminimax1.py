@@ -6,19 +6,8 @@ from pacman_module.game import Agent
 from pacman_module.pacman import Directions
 
 def key(state):
-    """
-    Returns a key that uniquely identifies a Pacman game state.
-
-    Arguments:
-    ----------
-    - `state`: the current game state. See FAQ and class
-               `pacman.GameState`.
-
-    Return:
-    -------
-    - A hashable key object that uniquely identifies a Pacman game state.
-    """
     return (state.getPacmanPosition(), state.getFood(), state.getGhostPosition(1),state.getGhostDirection(1))
+
 
 class PacmanAgent(Agent):
     def __init__(self, args):
@@ -29,39 +18,52 @@ class PacmanAgent(Agent):
         """
         self.move = None
 
-
     def cut_off(self, state, depth):
-        foodMatrix = state.getFood()
+
+        # Terminal State
+        if (state.isWin() or state.isLose()):
+            return True
+
+        # Depth limitation
+        gameGrid = state.getFood()
         nbColumns = 0
         nbRows = 0
-
         """Going through the matrix to count the remaining food in the game"""
-        for i in range(foodMatrix.width):
-            for j in range(foodMatrix.height):
+        for i in range(gameGrid.width):
+            for j in range(gameGrid.height):
                 nbColumns += 1
             nbRows += 1
         nbColumns /= nbRows
 
-        if(depth > (nbColumns + nbRows)/4):
+        if(depth > (nbColumns + nbRows)/3):
             return True
         else:
             return False
 
-
     def evals(self, state):
+        # Terminal State
+        if (state.isWin() or state.isLose()):
+            return state.getScore()
         score = state.getScore()
-        
-        foodMatrix = state.getFood()
+        gameGrid = state.getFood()
+
         pacmanPosition = state.getPacmanPosition()
-        sumManhattanDist = 0
+        ghostPosition = state.getGhostPosition(1)
+        ghostDistance = manhattanDistance(pacmanPosition, ghostPosition)
 
+
+        minDistFood = math.inf
+        nbFood = 0
         """Going through the matrix to count the remaining food in the game"""
-        for i in range(foodMatrix.width):
-            for j in range(foodMatrix.height):
-                if foodMatrix[i][j] is True:
-                    sumManhattanDist += manhattanDistance(pacmanPosition, (i, j))
+        for i in range(gameGrid.width):
+            for j in range(gameGrid.height):
+                if (gameGrid[i][j] is True): 
+                    nbFood +=1
+                    if (manhattanDistance((i,j), pacmanPosition )) < minDistFood:
+                        minDistFood =  (manhattanDistance((i,j), pacmanPosition ))
 
-        return score - 2*sumManhattanDist
+        return score + 2 * ghostDistance - 2 * minDistFood - 4 * nbFood
+
 
 
     def get_action(self, state):
@@ -82,24 +84,20 @@ class PacmanAgent(Agent):
         try:
             self.hminimax(state, 0, 0)
             m = self.move
-            # print(m)
+            print(m)
             return m
 
         except IndexError:
             return Directions.STOP
 
     def hminimax(self, state, agent, depth):
-        
-        max = -math.inf
-        min = math.inf
 
-        current_key = key(state)
-        if (state.isWin() or state.isLose()):
-            return state.getScore()
+        #Cas de base
         if self.cut_off(state, depth) :
             return self.evals(state)
 
-        #Cas de base
+        max = -math.inf
+        min = math.inf
         # pacman
         if(agent == 0) :
             for succ_state, succ_move in state.generatePacmanSuccessors():
@@ -108,7 +106,7 @@ class PacmanAgent(Agent):
                     max = value
                     if(depth == 0):
                         self.move = succ_move
-                    
+            print("Max: ", max)
             return max
 
         else :
@@ -116,6 +114,5 @@ class PacmanAgent(Agent):
                 value = self.hminimax(succ_state, 0, depth+1)
                 if value < min :
                     min = value
-
             return min
     
