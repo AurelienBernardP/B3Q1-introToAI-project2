@@ -35,7 +35,7 @@ class PacmanAgent(Agent):
             nbRows += 1
         nbColumns /= nbRows
 
-        if(depth > (nbColumns + nbRows)/3):
+        if(depth > (nbColumns + nbRows)/5):
             return True
         else:
             return False
@@ -62,7 +62,7 @@ class PacmanAgent(Agent):
                     if (manhattanDistance((i,j), pacmanPosition )) < minDistFood:
                         minDistFood =  (manhattanDistance((i,j), pacmanPosition ))
 
-        return score + 2 * ghostDistance - 2 * minDistFood - 4 * nbFood
+        return score - 1.00054 * (1/ghostDistance) - 1.5 * minDistFood - 5 * nbFood
 
 
 

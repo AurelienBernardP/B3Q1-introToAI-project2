@@ -19,7 +19,7 @@ class PacmanAgent(Agent):
         self.move = None
 
     def cut_off(self, state, depth):
-
+        
         # Terminal State
         if (state.isWin() or state.isLose()):
             return True
@@ -75,6 +75,7 @@ class PacmanAgent(Agent):
         """
         try:
             self.hminimax(state, 0, 0)
+            time.sleep(0.8)
             m = self.move
             print(m)
             return m

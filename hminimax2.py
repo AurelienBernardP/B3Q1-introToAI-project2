@@ -17,7 +17,6 @@ class PacmanAgent(Agent):
         - `args`: Namespace of arguments from command-line prompt.
         """
         self.move = None
-
     def getNbFood(self,state):
         foodMatrix = state.getFood()
         nbFood = 0
@@ -30,18 +29,13 @@ class PacmanAgent(Agent):
         
         return nbFood
 
-    def cut_off(self, state, depth):
+    def cut_off(self, state, depth, maxdepth):
         # Terminal State
         if (state.isWin() or state.isLose()):
             return True
 
         # Expansion if food eaten
-        nbFoodCurrent = self.getNbFood(state)
-        if(self.nbFoodPrev > nbFoodCurrent):
-            self.depthMax = depth + self.depthExpansion
-            self.nbFoodPrev = nbFoodCurrent
-
-        if(depth > self.depthMax):
+        if(depth > maxdepth):
             return True
         else:
             return False
@@ -69,7 +63,7 @@ class PacmanAgent(Agent):
                     if (manhattanDistance((i,j), pacmanPosition )) < minDistFood:
                         minDistFood =  (manhattanDistance((i,j), pacmanPosition ))
 
-        return score + 2 * ghostDistance - 2 * minDistFood - 4 * nbFood
+        return score + 0 * ghostDistance - 1.5 * manDistFood - 7 * nbFood
 
 
     def get_action(self, state):
@@ -86,12 +80,11 @@ class PacmanAgent(Agent):
         - A legal move as defined in `game.Directions`.
         """
 
-        self.nbFoodPrev = self.getNbFood(state)
-        self.depthExpansion = 3
-        self.depthMax = self.depthExpansion
+        self.initNbFood = self.getNbFood(state) + 1
+        self.depthExpansion = 4
 
         try:
-            self.hminimax(state, 0, 0)
+            self.hminimax(state, 0, 0, (self.initNbFood - self.getNbFood(state))*self.depthExpansion)
             m = self.move
             print(m)
             return m
@@ -99,10 +92,10 @@ class PacmanAgent(Agent):
         except IndexError:
             return Directions.STOP
 
-    def hminimax(self, state, agent, depth):
+    def hminimax(self, state, agent, depth, depthMax):
 
         #Cas de base
-        if self.cut_off(state, depth) :
+        if self.cut_off(state, depth, depthMax) :
             return self.evals(state)
 
         max = -math.inf
@@ -110,7 +103,7 @@ class PacmanAgent(Agent):
         # pacman
         if(agent == 0) :
             for succ_state, succ_move in state.generatePacmanSuccessors():
-                value = self.hminimax(succ_state, 1, depth + 1)
+                value = self.hminimax(succ_state, 1, depth + 1, (self.initNbFood - self.getNbFood(state))*self.depthExpansion)
                 if value > max :
                     max = value
                     if(depth == 0):
@@ -120,7 +113,7 @@ class PacmanAgent(Agent):
 
         else :
             for succ_state, succ_move in state.generateGhostSuccessors(1):
-                value = self.hminimax(succ_state, 0, depth+1)
+                value = self.hminimax(succ_state, 0, depth+1, (self.initNbFood - self.getNbFood(state))*self.depthExpansion)
                 if value < min :
                     min = value
             return min
