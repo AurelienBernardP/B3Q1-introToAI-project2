@@ -3,7 +3,6 @@ from pacman_module.game import Agent
 from pacman_module.pacman import Directions
 import math
 import time
-from pacman_module.util import *
 
 
 def key(state):
@@ -35,7 +34,7 @@ class PacmanAgent(Agent):
         self.moves = {}
         
     def get_action(self, state):
-        time.sleep(0.5)
+        time.sleep(1.3)
         """
         Given a pacman game state, returns a legal move.
 
@@ -53,88 +52,79 @@ class PacmanAgent(Agent):
             self.moves = self.minimax(state)
 
         try:
-            m = self.moves[key(state)]
-            print("move and prediction", m)
+            m = self.moves[key(state)][0]
+            print(m,self.moves[key(state)][1] )
             return m
 
         except IndexError:
             return Directions.STOP
 
     def minimaxAUX(self, state, agent, closed):
-        queue = Queue()
-        stack = Stack()
-        queue.push((state,None, 0))#(state, move to get to that state, node depth)
-        ghostScores = {}
-        pacmanScores = {}
-        pacmanMoves = {}
-        while(not queue.isEmpty()):
-            (currentState, previousMove, nodeDepth) = queue.pop()
-            currentKey = key(currentState)
-            if(currentKey not in closed):
-                closed.add(currentKey)
-                #pacman turn
-                if (nodeDepth % 2) == 0 :
-                    if currentState.isWin() or currentState.isLose():
-                        pacmanScores[currentKey] = (state.getScore())
-                        continue
-                    nextStates = currentState.generatePacmanSuccessors()
-                    stack.push((currentState, nodeDepth))
-                    for s,a in nextStates:
-                        queue.push((s, a, nodeDepth + 1))
-                #ghost's turn
-                else :
-                    if (state.isWin() or state.isLose()):
-                        ghostScores[currentKey] = (state.getScore())
-                        continue
-                    nextStates = currentState.generateGhostSuccessors(1)
-                    stack.push((currentState, nodeDepth))
-                    for s,a in nextStates:
-                        queue.push((s, a, nodeDepth + 1))
-            else:
-                if not (currentState.isWin() or currentState.isLose()):
-                    if (nodeDepth % 2) == 0 :
-                        pacmanScores[currentKey] = math.inf
-                    else:
-                        ghostScores[currentKey] = -math.inf
-        
-        while(not stack.isEmpty()):
-            currentState, currentDepth = stack.pop()
-            print("depth", currentDepth)
-            if (currentDepth % 2) == 0:
-                max = -math.inf
-                maxMove = Directions.STOP
-                for s, a in currentState.generatePacmanSuccessors():
-                    succKey = key(s)
-                    if(s.isWin() or s.isLose()):
-                        value = s.getScore()
-                        valueMove = a
-                    else:
-                        value = ghostScores[succKey]
-                        valueMove = a
-                    if max < value:
-                        maxMove = a
-                        max = value
-                pacmanMoves[key(currentState)] = a
-                pacmanScores[key(currentState)] = max
-                print("max",max)
-            else:
-                min = math.inf
-                for s, a in currentState.generateGhostSuccessors(1):
-                    succKey = key(s)
-                    if(s.isWin() or s.isLose()):
-                        value = s.getScore()
-                    else:
-                        value = pacmanScores[succKey]
-                    if min < value :
-                        min = value
-                print("min", min)
-                ghostScores[key(currentState)] = min
+        """
+        Given a pacman game state,
+        returns a list of legal moves to solve the search layout.
 
-        return pacmanMoves
+        Arguments:
+        ----------
+        - `state`: the current game state. See FAQ and class
+                   `pacman.GameState`.
+
+        Return:
+        -------
+        - A list of legal moves as defined in `game.Directions`.
+        """
+        max = -math.inf
+        min = math.inf
+
+        current_key = key(state)
+        if current_key in closed :
+            if not (state.isWin() or state.isLose()):
+                if(agent == 0):
+                    self.moves[current_key] = (Directions.STOP, -math.inf)
+                    return -math.inf
+                else :
+                    return math.inf
+            else :
+                return state.getScore()
+
+        closed.add(current_key)
+
+        #Cas de base
+        
+
+        # pacman
+        if(agent == 0) :
+            if state.isWin() :
+                return state.getScore()
+            if state.isLose():
+                return state.getScore()
+            value_move = Directions.STOP
+            for succ_state, succ_move in state.generatePacmanSuccessors():
+                value = self.minimaxAUX(succ_state, 1, closed)
+                if value > max :
+                    max = value
+                    value_move = succ_move
+                    
+            self.moves[current_key] = (value_move, max)
+            if(value_move == Directions.STOP):
+                print(state, max, value)
+            #end for
+            return max
+
+        else :
+            if state.isWin() :
+                return state.getScore()
+            if state.isLose():
+                return state.getScore()
+            for succ_state, succ_move in state.generateGhostSuccessors(1):
+                value = self.minimaxAUX(succ_state, 0, closed)
+                if value < min :
+                    min = value
+
+            return min
 
     def minimax(self, state):
         closed = set()
-        self.moves = self.minimaxAUX(state, 0, closed)
-        print(self.moves)
+        max = self.minimaxAUX(state, 0, closed)
         return self.moves 
     
