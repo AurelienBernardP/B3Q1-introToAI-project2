@@ -18,18 +18,6 @@ class PacmanAgent(Agent):
         """
         self.move = None
 
-    def getNbFood(self,state):
-        foodMatrix = state.getFood()
-        nbFood = 0
-
-        """Going through the matrix to count the remaining food in the game"""
-        for i in range(foodMatrix.width):
-            for j in range(foodMatrix.height):
-                if foodMatrix[i][j] is True:
-                    nbFood += 1
-        
-        return nbFood
-
     def cut_off(self, state, depth):
 
         # Terminal State
@@ -73,7 +61,6 @@ class PacmanAgent(Agent):
 
 
     def get_action(self, state):
-        # time.sleep(0.5)
         """
         Given a pacman game state, returns a legal move.
 
@@ -86,11 +73,6 @@ class PacmanAgent(Agent):
         -------
         - A legal move as defined in `game.Directions`.
         """
-
-        self.nbFoodPrev = self.getNbFood(state)
-        self.depthExpansion = 3
-        self.depthMax = self.depthExpansion
-
         try:
             self.hminimax(state, 0, 0)
             m = self.move

@@ -67,7 +67,6 @@ class PacmanAgent(Agent):
 
 
     def get_action(self, state):
-        # time.sleep(0.5)
         """
         Given a pacman game state, returns a legal move.
 
