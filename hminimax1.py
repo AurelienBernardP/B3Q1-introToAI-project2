@@ -35,7 +35,7 @@ class PacmanAgent(Agent):
             nbRows += 1
         nbColumns /= nbRows
 
-        if(depth > (nbColumns + nbRows)/5):
+        if(depth > (nbColumns + nbRows)/3.5):
             return True
         else:
             return False
@@ -62,7 +62,7 @@ class PacmanAgent(Agent):
                     if (manhattanDistance((i,j), pacmanPosition )) < minDistFood:
                         minDistFood =  (manhattanDistance((i,j), pacmanPosition ))
 
-        return score - 1.00054 * (1/ghostDistance) - 1.5 * minDistFood - 5 * nbFood
+        return 3*score + 2*ghostDistance - 5 * minDistFood - 40 * nbFood
 
 
 
@@ -83,7 +83,7 @@ class PacmanAgent(Agent):
         try:
             self.hminimax(state, 0, 0)
             m = self.move
-            print(m)
+            #print(m)
             return m
 
         except IndexError:
@@ -105,7 +105,7 @@ class PacmanAgent(Agent):
                     max = value
                     if(depth == 0):
                         self.move = succ_move
-            print("Max: ", max)
+            #print("Max: ", max)
             return max
 
         else :
