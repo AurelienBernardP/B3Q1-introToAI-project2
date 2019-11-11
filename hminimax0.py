@@ -107,13 +107,12 @@ class PacmanAgent(Agent):
         """
         Returns the best payoff for the current agent 'agent'
         while attempting to predict the moves of the other agent
-        within a range.
-        It also defines the optimal next move within that range
+        within a range. It also defines the optimal next move
+        within that range for Pacman
 
         Arguments:
         ----------
-        - `state`: the current game state. See FAQ and class
-                   `pacman.GameState`.
+        - `state`: the current game state. See class `pacman.GameState`.
         - 'agent': agent who has the move in the given 'state'
         - 'depth': the depth of 'state' compared to the
                    initial state

@@ -1,8 +1,6 @@
-
 from pacman_module.game import Agent
 from pacman_module.pacman import Directions
 import math
-import time
 
 
 def key(state):
@@ -18,13 +16,14 @@ def key(state):
     -------
     - A hashable key object that uniquely identifies a Pacman game state.
     """
-    return (state.getPacmanPosition(), state.getFood(), state.getGhostPosition(1),state.getGhostDirection(1))
+    return (state.getPacmanPosition(), state.getFood(),
+            state.getGhostPosition(1), state.getGhostDirection(1))
+
 
 class PacmanAgent(Agent):
     """
     A Pacman agent based on Depth-First-Search.
     """
-
     def __init__(self, args):
         """
         Arguments:
@@ -32,9 +31,9 @@ class PacmanAgent(Agent):
         - `args`: Namespace of arguments from command-line prompt.
         """
         self.moves = {}
-        
+        self.closed = set()
+
     def get_action(self, state):
-        time.sleep(1.3)
         """
         Given a pacman game state, returns a legal move.
 
@@ -49,82 +48,62 @@ class PacmanAgent(Agent):
         """
 
         if key(state) not in self.moves:
-            self.moves = self.minimax(state)
+            self.minimax(state, 0)
 
         try:
-            m = self.moves[key(state)][0]
-            print(m,self.moves[key(state)][1] )
-            return m
+            return self.moves[key(state)][0]
 
         except IndexError:
             return Directions.STOP
 
-    def minimaxAUX(self, state, agent, closed):
+    def minimax(self, state, agent):
         """
-        Given a pacman game state,
-        returns a list of legal moves to solve the search layout.
+        Returns the best payoff for the current agent 'agent'
+        while predicting the moves of the other agent.
+        It also defines the optimal next move for Pacman given 'state'
 
         Arguments:
         ----------
-        - `state`: the current game state. See FAQ and class
-                   `pacman.GameState`.
+        - `state`: the current game state. See class `pacman.GameState`.
+        - 'agent': agent who has the move in the given 'state'
 
         Return:
         -------
-        - A list of legal moves as defined in `game.Directions`.
+        - Returns the payoff explained above
         """
+        current_key = key(state)
+        if current_key in self.closed:
+            if not (state.isWin() or state.isLose()):
+                if agent == 0:
+                    return -math.inf
+                else:
+                    return math.inf
+            else:
+                return state.getScore()
+        self.closed.add(current_key)
         max = -math.inf
         min = math.inf
 
-        current_key = key(state)
-        if current_key in closed :
-            if not (state.isWin() or state.isLose()):
-                if(agent == 0):
-                    self.moves[current_key] = (Directions.STOP, -math.inf)
-                    return -math.inf
-                else :
-                    return math.inf
-            else :
-                return state.getScore()
-
-        closed.add(current_key)
-
-        #Cas de base
-        
-        # pacman
-        if(agent == 0) :
-            if state.isWin() :
-                return state.getScore()
-            if state.isLose():
+        # Pacman has the move
+        if agent == 0:
+            if state.isWin() or state.isLose():
                 return state.getScore()
             value_move = Directions.STOP
             for succ_state, succ_move in state.generatePacmanSuccessors():
-                value = self.minimaxAUX(succ_state, 1, closed)
-                if value > max :
+                value = self.minimax(succ_state, 1)
+                if value > max:
                     max = value
                     value_move = succ_move
             self.moves[current_key] = (value_move, max)
-            if(value_move == Directions.STOP):
-                print(state, max, value)
-            #end for
             return max
-
-        else :
-            if state.isWin() :
-                return state.getScore()
-            if state.isLose():
+        # Ghost has the move
+        else:
+            if state.isWin() or state.isLose():
                 return state.getScore()
             for succ_state, succ_move in state.generateGhostSuccessors(1):
-                value = self.minimaxAUX(succ_state, 0, closed)
-                if value == math.inf or value == -math.inf:
+                value = self.minimax(succ_state, 0)
+                if value == -math.inf:
                     continue
-                if value < min :
+                if value < min:
                     min = value
-
             return min
-
-    def minimax(self, state):
-        closed = set()
-        self.minimaxAUX(state, 0, closed)
-        return self.moves 
-    
