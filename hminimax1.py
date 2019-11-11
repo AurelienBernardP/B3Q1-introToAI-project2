@@ -28,8 +28,8 @@ def cutOff(state, depth):
     Arguments:
     ----------
     - `state`: the current game state. See class `pacman.GameState`.
-    - `depth`: the depth of 'state' compared to the initial state
-
+    - `depth`: the depth of 'state' compared to the farthest ancestor
+               of 'state'
     Return:
     -------
     - A boolean which is true if the state should stop expanding.

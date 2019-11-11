@@ -51,7 +51,8 @@ def cutOff(state, depth, depthMax):
     Arguments:
     ----------
     - `state`: the current game state. See class `pacman.GameState`.
-    - `depth`: the depth of 'state' compared to the initial state
+    - `depth`: the depth of 'state' compared to the farthest ancestor
+               of 'state'
     - `depthMax`: the maximal depth to visit based on the initial state
 
     Return:
