@@ -91,7 +91,6 @@ class PacmanAgent(Agent):
 
         #Cas de base
         
-
         # pacman
         if(agent == 0) :
             if state.isWin() :
@@ -104,7 +103,6 @@ class PacmanAgent(Agent):
                 if value > max :
                     max = value
                     value_move = succ_move
-                    
             self.moves[current_key] = (value_move, max)
             if(value_move == Directions.STOP):
                 print(state, max, value)
@@ -118,6 +116,8 @@ class PacmanAgent(Agent):
                 return state.getScore()
             for succ_state, succ_move in state.generateGhostSuccessors(1):
                 value = self.minimaxAUX(succ_state, 0, closed)
+                if value == math.inf or value == -math.inf:
+                    continue
                 if value < min :
                     min = value
 
@@ -125,6 +125,6 @@ class PacmanAgent(Agent):
 
     def minimax(self, state):
         closed = set()
-        max = self.minimaxAUX(state, 0, closed)
+        self.minimaxAUX(state, 0, closed)
         return self.moves 
     
