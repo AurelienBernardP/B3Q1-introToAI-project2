@@ -136,6 +136,26 @@ class PacmanAgent(Agent):
             return Directions.STOP
 
     def hminimax(self, state, agent, depth, depthMax):
+        """
+        Returns the best payoff for the current agent 'agent'
+        while attempting to predict the moves of the other agent
+        within a range.
+        It also defines the optimal next move within that range
+
+        Arguments:
+        ----------
+        - `state`: the current game state. See FAQ and class
+                   `pacman.GameState`.
+        - 'agent': agent who has the move in the given 'state'
+        - 'depth': the depth of 'state' compared to the
+                   initial state
+        - 'depthMax': the maximal depth to explore based on
+                   the number of food left in the given state
+
+        Return:
+        -------
+        - Returns the payoff explained above
+        """
         if cutOff(state, depth, depthMax):
             return evals(state)
         max = -math.inf
