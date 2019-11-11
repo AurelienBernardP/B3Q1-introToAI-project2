@@ -37,7 +37,6 @@ def cutOff(state, depth):
     if (state.isWin() or state.isLose()):
         return True
     gameGrid = state.getFood()
-    # Going through the game to count the number of rows and columns
     nbRows = gameGrid.width
     nbColumns = gameGrid.height
     if(depth > (nbColumns + nbRows)/6):
