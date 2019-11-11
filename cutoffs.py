@@ -1,5 +1,3 @@
-# include visited state & terminal states in both cutoffs
-
     def cut_off(self, state, depth):
 
         # Terminal State
@@ -17,24 +15,19 @@
             nbRows += 1
         nbColumns /= nbRows
 
-        if(depth > (nbColumns + nbRows)/5):
+        if(depth > (nbColumns + nbRows)/6):
             return True
         else:
             return False
 
 
-def cut_off(self, state, depth):
+    def cut_off(self, state, depth, maxdepth):
         # Terminal State
         if (state.isWin() or state.isLose()):
             return True
 
         # Expansion if food eaten
-        nbFoodCurrent = self.getNbFood(state)
-        if(self.nbFoodPrev > nbFoodCurrent):
-            self.depthMax = depth + self.depthExpansion
-            self.nbFoodPrev = nbFoodCurrent
-
-        if(depth > self.depthMax):
+        if(depth > maxdepth):
             return True
         else:
             return False

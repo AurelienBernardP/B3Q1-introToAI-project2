@@ -55,7 +55,6 @@ class PacmanAgent(Agent):
             for j in range(gameGrid.height):
                 if gameGrid[i][j] is True:
                     sumManhattanDist += manhattanDistance(pacmanPosition, (i, j))
-        ghostDistance = manhattanDistance(pacmanPosition, ghostPosition)
 
         return score -  sumManhattanDist
 
